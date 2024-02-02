@@ -1,0 +1,29 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* This file is for your main application CSS */
+input, input[type="email"], input[type="password"] {
+    @apply py-2 px-3 rounded bg-gray-100 text-gray-900 border-0 font-normal
+}
+
+input::placeholder{
+    @apply text-gray-400
+}
+label {
+    @apply font-medium
+}
+button, .button {
+    @apply py-2 px-3 rounded
+}
+
+.icon {
+    fill: currentColor;
+}
+
+
+.text-ellipsis {
+    white-space: nowrap;         /* Prevent text from wrapping */
+    overflow: hidden;            /* Hide any overflow */
+    text-overflow: ellipsis;     /* Display an ellipsis (...) for overflowed text */
+}
