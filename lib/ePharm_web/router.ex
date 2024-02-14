@@ -5,7 +5,6 @@ defmodule EPharmWeb.Router do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
-    plug :put_root_layout, html: {EPharmWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -14,8 +13,9 @@ defmodule EPharmWeb.Router do
     plug :accepts, ["json"]
   end
 
-  pipeline :fake_auth do
+  pipeline :dashboard_presets do
     plug(EPharmWeb.Plugs.FakeAuthentication)
+    plug :put_root_layout, html: {EPharmWeb.Layouts, :dashboard}
   end
   scope "/", EPharmWeb do
     pipe_through :browser
@@ -23,13 +23,17 @@ defmodule EPharmWeb.Router do
     get "/", HomeController, :home
     get "/auth/:mode", AuthController, :auth
     post "/auth/login", AuthController, :login
-    post "/auth/signup", AuthController, :sign_in
+    post "/auth/signup", AuthController, :signup
+
   end
 
   scope "/", EPharmWeb do
-    pipe_through([:browser, :fake_auth])
+    pipe_through [ :browser, :dashboard_presets]
 
-    get "/account", AccountController, :account_home
+    live "/account", Dashboard.AccountLive
+    live "/doctors", Dashboard.Doctors.Index
+    resources "api/products", ProductController
+    resources "api/doctors", DoctorController
   end
 
   # Other scopes may use custom stacks.

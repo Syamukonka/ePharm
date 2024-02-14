@@ -18,6 +18,7 @@ defmodule EPharmWeb.CoreComponents do
 
   alias Phoenix.LiveView.JS
   import EPharmWeb.Gettext
+  import EPharmWeb.Helpers.IconHelper
 
   @doc """
   Renders a modal.
@@ -66,7 +67,7 @@ defmodule EPharmWeb.CoreComponents do
               phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
               phx-key="escape"
               phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
-              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-14 shadow-lg ring-1 transition"
+              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-8 shadow-lg ring-1 transition"
             >
               <div class="absolute top-6 right-5">
                 <button
@@ -190,7 +191,6 @@ defmodule EPharmWeb.CoreComponents do
   """
   attr :for, :any, required: true, doc: "the datastructure for the form"
   attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
-
   attr :rest, :global,
     include: ~w(autocomplete name rel action enctype method novalidate target multipart),
     doc: "the arbitrary HTML attributes to apply to the form tag"
@@ -239,6 +239,75 @@ defmodule EPharmWeb.CoreComponents do
       <%= render_slot(@inner_block) %>
     </button>
     """
+  end
+
+  @doc """
+  Renders a button with icons(optional).
+
+  ## Examples
+
+      <.button icon_end="arrow-right" > Send! </.button>
+      <.button phx-click="go" class="ml-2">Send!</.button>
+  """
+  attr :type, :string, default: nil
+  attr :class, :string, default: nil
+  attr :rest, :global, include: ~w(disabled form name value)
+  attr :icon_start, :string, default: " "
+  attr :icon_end, :string, default: " "
+  attr :navigate, JS, default: %JS{}
+  attr :on_click, JS, default: %JS{}
+  slot :inner_block, required: true
+
+  def icon_button(assigns) do
+    ~H"""
+    <button
+      type={@type}
+      phx-click={JS.exec(@on_click, "phx-remove")}
+      class={[
+        "phx-submit-loading:opacity-75 rounded-lg bg-gray-100 hover:bg-gray-500 hover:text-white py-2 px-3 flex items-center gap-2",
+        "text-sm font-semibold leading-6 text-fg-400 active:text-white transition-colors duration-500",
+        @class
+      ]}
+      {@rest}
+    >
+      <%= if(@icon_start != " ") do %>
+        <%= icon(@icon_start, class: "w-5 h-5") %>
+      <% end %>
+
+      <%= render_slot(@inner_block) %>
+
+      <%= if(@icon_end != " ") do %>
+        <%= icon(@icon_end, class: "w-5 h-5") %>
+      <% end %>
+    </button>
+    """
+  end
+
+  @doc """
+      Renders a menu item with icons(optional) on the left or right-side, and a badge (optional)
+  """
+
+  attr :text, :string, default: nil
+  attr :icon_start, :string, default: ""
+  attr :icon_end, :string, default: ""
+  attr :badge, :boolean, default: false
+  attr :badge_text, :string, default: ""
+  attr :badge_style, :string, default: ""
+  attr :box_style, :string, default: ""
+  attr :on_click, JS, default: %JS{}
+
+  def menu_item(assigns) do
+      ~H"""
+          <div phx-click={JS.exec(@on_click, "phx-remove")} class={[
+              "w-full max-w-sm p-2 rounded-lg flex justify-start gap-4 items-center relative cursor-pointer",
+              "text-fg-200 hover:bg-brand-primary-50 hover:text-brand-primary-500 ",
+              @box_style]}>
+              <.icon :if={@icon_start} name={@icon_start} class="w-5 h-5" />
+              <p class={["font-medium flex-1"]}> <%= @text %> </p>
+              <.icon :if={@icon_end} name={@icon_end} class="w-4 h-4" />
+              <span :if={@badge} class={["text-[10px] absolute top-0 right-0 rounded-full flex justify-center px-1.5 bg-brand-primary-600 text-white font-medium items-center", @badge_style]}> <%= @badge_text %> </span>
+          </div>
+      """
   end
 
   @doc """
@@ -316,7 +385,7 @@ defmodule EPharmWeb.CoreComponents do
           name={@name}
           value="true"
           checked={@checked}
-          class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
+          class="rounded border-zinc-300 text-fg-400 focus:ring-0"
           {@rest}
         />
         <%= @label %>
@@ -353,7 +422,7 @@ defmodule EPharmWeb.CoreComponents do
         id={@id}
         name={@name}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+          "mt-2 block w-full rounded-lg text-fg-400 focus:ring-0 sm:text-sm sm:leading-6",
           "min-h-[6rem] phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
           @errors != [] && "border-rose-400 focus:border-rose-400"
@@ -376,7 +445,7 @@ defmodule EPharmWeb.CoreComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+          "mt-2 block w-full rounded-lg text-fg-400 focus:ring-0 sm:text-sm sm:leading-6",
           "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
           @errors != [] && "border-rose-400 focus:border-rose-400"
@@ -473,40 +542,37 @@ defmodule EPharmWeb.CoreComponents do
       end
 
     ~H"""
-    <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
-      <table class="w-[40rem] mt-11 sm:w-full">
+    <div class=" px-4 overflow-x-scroll sm:px-2">
+      <table class="max-w-screen-lg mt-11 w-full">
         <thead class="text-sm text-left leading-6 text-zinc-500">
           <tr>
-            <th :for={col <- @col} class="p-0 pb-4 pr-6 font-normal"><%= col[:label] %></th>
+            <th :for={col <- @col} class={"p-0 pb-4 pr-6 font-medium"}><%= col[:label] %></th>
             <th :if={@action != []} class="relative p-0 pb-4">
-              <span class="sr-only"><%= gettext("Actions") %></span>
+              <span class="sr-only"> <%= gettext("Actions") %> </span>
             </th>
           </tr>
         </thead>
+
         <tbody
           id={@id}
           phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
-          class="relative divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-zinc-700"
-        >
-          <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-zinc-50">
+          class="relative divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-fg-400" >
+          <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group rounded-lg group-hover:bg-zinc-50">
             <td
               :for={{col, i} <- Enum.with_index(@col)}
               phx-click={@row_click && @row_click.(row)}
-              class={["relative p-0", @row_click && "hover:cursor-pointer"]}
-            >
+              class={["relative p-0", @row_click && "hover:cursor-pointer", i == 0 && "sticky"]}>
               <div class="block py-4 pr-6">
-                <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl" />
-                <span class={["relative", i == 0 && "font-semibold text-zinc-900"]}>
+                <span class={["relative overflow-ellipsis line-clamp-2", i == 0 && "font-semibold text-fg-500"]}>
                   <%= render_slot(col, @row_item.(row)) %>
                 </span>
               </div>
             </td>
-            <td :if={@action != []} class="relative w-14 p-0">
-              <div class="relative whitespace-nowrap py-4 text-right text-sm font-medium">
-                <span class="absolute -inset-y-px -right-4 left-0 group-hover:bg-zinc-50 sm:rounded-r-xl" />
+            <td :if={@action != []} class="relative sticky w-14 p-0">
+              <div class="flex items-center gap-2 whitespace-nowrap py-4 text-right text-sm font-medium">
                 <span
                   :for={action <- @action}
-                  class="relative ml-4 font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+                  class="relative ml-4 font-semibold leading-6 text-fg-400 hover:text-brand-500"
                 >
                   <%= render_slot(action, @row_item.(row)) %>
                 </span>
@@ -539,7 +605,7 @@ defmodule EPharmWeb.CoreComponents do
       <dl class="-my-4 divide-y divide-zinc-100">
         <div :for={item <- @item} class="flex gap-4 py-4 text-sm leading-6 sm:gap-8">
           <dt class="w-1/4 flex-none text-zinc-500"><%= item.title %></dt>
-          <dd class="text-zinc-700"><%= render_slot(item) %></dd>
+          <dd class="text-fg-400"><%= render_slot(item) %></dd>
         </div>
       </dl>
     </div>
@@ -561,7 +627,7 @@ defmodule EPharmWeb.CoreComponents do
     <div class="mt-16">
       <.link
         navigate={@navigate}
-        class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+        class="text-sm font-semibold leading-6 text-fg-400 hover:text-fg-400"
       >
         <.icon name="hero-arrow-left-solid" class="h-3 w-3" />
         <%= render_slot(@inner_block) %>
@@ -570,32 +636,78 @@ defmodule EPharmWeb.CoreComponents do
     """
   end
 
+
+
   @doc """
-  Renders a [Heroicon](https://heroicons.com).
+  Renders an SVG icon defined in 'priv/static/images/icons.svg'
 
-  Heroicons come in three styles – outline, solid, and mini.
-  By default, the outline style is used, but solid and mini may
-  be applied by using the `-solid` and `-mini` suffix.
-
-  You can customize the size and colors of the icons by setting
-  width, height, and background color classes.
-
-  Icons are extracted from your `assets/vendor/heroicons` directory and bundled
-  within your compiled app.css by the plugin in your `assets/tailwind.config.js`.
-
-  ## Examples
-
-      <.icon name="hero-x-mark-solid" />
-      <.icon name="hero-arrow-path" class="ml-1 w-3 h-3 animate-spin" />
+  ### Examples
+      <.icon_tag name="bell" />
+      <.icon_tag name="gear" class="ml-1 w-3 h-3 animate-spin" />
   """
   attr :name, :string, required: true
-  attr :class, :string, default: nil
+  attr :class, :string, default: "w-5 h-5"
+  attr :box_style, :string, default: ""
+  attr :on_click, :any, default: nil
 
   def icon(%{name: "hero-" <> _} = assigns) do
     ~H"""
-    <span class={[@name, @class]} />
+      <span class={[@name, @class]} />
     """
   end
+
+  def icon(assigns) when is_binary(@on_click) do
+    ~H"""
+    <span phx-click={@on_click} class={@box_style <> " hover:text-brand-primary-500 transition-colors"}>
+      <%= icon(@name, class: @class <> " cursor-pointer") %>
+    </span>
+    """
+  end
+
+  def icon(assigns) when is_function(@on_click) do
+    ~H"""
+    <span phx-click={JS.exec(@on_click, "")} class={@box_style <> " hover:text-brand-primary-500 transition-colors"}>
+      <%= icon(@name, class: @class <> " cursor-pointer") %>
+    </span>
+    """
+  end
+
+  def icon(assigns) do
+    ~H"""
+    <span class={@box_style <> " hover:text-brand-primary-500 transition-colors"}>
+      <%= icon(@name, class: @class <> " cursor-pointer") %>
+    </span>
+    """
+  end
+
+
+  attr :name, :string, default: " "
+  attr :specialization, :string, default: " "
+  attr :bio, :string, default: nil
+  attr :dept, :string, default: nil
+  attr :rating, :integer, default: 0
+  def doctor_card(assigns) do
+    ~H"""
+        <div class="flex flex-col h-full border rounded-lg hover:shadow-lg shadow-md cursor-pointer">
+          <div class="flex flex-col gap-2 p-4">
+            <div>
+              <div class="flex justify-between gap-4 items-center">
+                <p class="text-lg font-medium"> Dr. <%= @name %> </p>
+                <p class="flex gap-2 items-center font-medium text-sm"> <.icon name="star" class="text-amber-500 w-5 h-5"  /> <%= @rating %>/5  </p>
+              </div>
+              <p class="text-xs text-brand-primary-500"> <%= @specialization %> </p>
+            </div>
+            <p class="text-sm line-clamp-2"> <%= @bio %> </p>
+          </div>
+          <div class="flex justify-between">
+            <.icon_button icon_start="doctor" class="flex-1 rounded-full text-center"> Consult </.icon_button>
+            <.icon_button icon_start="trash-can" class="flex-1"> Remove </.icon_button>
+          </div>
+        </div>
+    """
+  end
+
+
 
   ## JS Commands
 

@@ -1,0 +1,52 @@
+<div>
+    <.header>
+        <div class="flex gap-4 items-center">
+            My Doctors
+            <span class="bg-white text-sm flex items-center gap-2 flex-nowrap font-normal border rounded-full px-2 py-1" phx-click="toggle_view">
+                <%= if @viewing_mode == 0, do: "Card view",  else: "Table view" %>
+                <.icon name="chevron-right" class="w-4 h-4" />
+            </span>
+        </div>
+        <:actions>
+            <div phx-click="show_form" class="flex items-center justify-between gap-4 w-full">
+              <.icon_button icon_start={"doctor"}> New Doctor </.icon_button>
+            </div>
+        </:actions>
+    </.header>
+
+    <h1 class="text-2xl font-bold"> <%= length(@doctors) %> </h1>
+
+    <div :if={@viewing_mode === 1} class="w-full grid sm:grid-cols-3 md:grid-cols-4 gap-4 mt-5">
+        <.doctor_card :for={doc <- @doctors}
+            name={doc.first_name <> " " <> doc.last_name}
+            specialization={doc.specialization}
+            bio={doc.bio}
+            rating={doc.rating}/>
+    </div>
+
+    <.table :if={@viewing_mode === 0} id="doctors" rows={@doctors} row_click={&JS.navigate(~p"/doctors/#{&1}")}>
+      <:col :let={doctor} label="Name"><%= doctor.first_name <> " " <> doctor.last_name %></:col>
+      <:col :let={doctor} label="Specialization"><%= doctor.specialization %></:col>
+      <:col :let={doctor} label="Deptartment"><%= doctor.deptartment %></:col>
+      <:col :let={doctor} label="Rating"><%= doctor.rating %></:col>
+      <:col :let={doctor} label="Bio"><%= doctor.bio %></:col>
+      <:action :let={doctor}>
+        <div class="sr-only">
+          <.link navigate={~p"/doctors/#{doctor}"}>show</.link>
+        </div>
+        <.link navigate={~p"/doctors/#{doctor}/edit"}>
+        <.icon name="pencil" />
+        </.link>
+      </:action>
+      <:action :let={doctor}>
+        <.link href={~p"/doctors/#{doctor}"} method="delete" data-confirm="Are you sure?">
+          <.icon name="trash-can" />
+        </.link>
+      </:action>
+    </.table>
+
+    <.modal id="new_doctor" show={@show}>
+        <h1 class="font-medium"> New Doctor? </h1>
+        <p class="text-sm">This feature will be here soon </p>
+    </.modal>
+</div>

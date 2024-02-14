@@ -10,5 +10,4 @@ defmodule EPharmWeb.Helpers.IconHelper do
       tag(:use, "xlink:href": "/images/icons.svg#" <> name)
     end
   end
-
 end

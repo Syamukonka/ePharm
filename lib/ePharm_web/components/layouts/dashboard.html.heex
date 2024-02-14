@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" class="[scrollbar-gutter:stable]">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <.live_title suffix=" · Phoenix Framework">
+      <%= assigns[:page_title] || "EPharm" %>
+    </.live_title>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+  </head>
+  <body class="bg-white antialiased">
+        <div class="w-full" >
+            <nav class="w-72 fixed p-4 h-screen z-50">
+                <div class="flex flex-col gap-2 h-full rounded-lg bg-gradient-to-br from-gray-100 from-blue-100 border shadow-lg p-4 relative">
+                    <div class="p-1 transition-all duration-400 absolute right-2 top-2 rounded-full hover:bg-gray-400 flex justify-center items-center hover:text-white"> <%= icon("x-mark", class: "w-4 h-4") %> </div>
+                    <div class="flex justify-start gap-2 items-center">
+                        <img src={~p"/images/logo.svg"} width="36" alt="logo" />
+                        <h1 class="text-center font-bold text-orange-500">ePharm</h1>
+                    </div>
+                    <hr />
+                    <.user_card name={"Michelle S"} email={"michelles.2423@epharm.com"} auth={@authenticated} />
+                    <div class="mt-5 flex flex-col gap-2">
+                        <.menu_item on_click={JS.navigate(~p"/account")} text="Dashboard" icon_start="chalk-board" badge={true} badge_text="2" />
+                        <.menu_item on_click={JS.navigate(~p"/doctors")} text="My doctors" icon_start="doctor" />
+                        <.menu_item on_click={JS.navigate(~p"/products")} text="Prescriptions" icon_start="pills" icon_end="chevron-right" badge={true} badge_text="1" />
+                        <.menu_item on_click={JS.navigate(~p"/health_tracking")} text="Health track" icon_start="chart-line-up" />
+                    </div>
+                </div>
+            </nav>
+
+            <div class="pl-4 md:pl-72 w-full transition-all duration-1000" >
+                <nav class="p-4 w-full flex justify-between sticky top-0 bg-base-100">
+                    <div class="flex p-2 !px-0 hover:text-orange-500 cursor-pointer">
+                        <%= icon("hamburger-menu", class: "w-6 h-6") %>
+                    </div>
+
+                    <div class="flex gap-2 items-center justify-end">
+                        <p class="flex p-2 hover:text-orange-500 cursor-pointer"> <%= icon("bell", class: "w-6 h-6") %> </p>
+                        <.icon_button on_click={JS.navigate(~p"/auth/login")} icon_end="arrow-right-from-box">
+                            Signout
+                        </.icon_button>
+                    </div>
+                </nav>
+                <main class="p-4">
+                    <%= @inner_content %>
+                </main>
+            </div>
+        </div>
+
+  </body>
+</html>

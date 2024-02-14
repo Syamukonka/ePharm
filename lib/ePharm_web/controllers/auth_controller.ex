@@ -1,5 +1,7 @@
 defmodule EPharmWeb.AuthController do
   use EPharmWeb, :controller
+  alias EPharm.Accounts
+  alias EPharm.Accounts.User
 
   def auth(conn, %{"mode" => mode}) do
     mMode = if String.downcase(mode) === "sign-up" or String.downcase(mode) === "signup" or String.downcase(mode) === "sign up" do
@@ -7,7 +9,8 @@ defmodule EPharmWeb.AuthController do
     else
       "Login in"
     end
-    render(conn, :auth, mode: mMode)
+    changeset = Accounts.change_user(%User{})
+    render(conn, :auth, mode: mMode, changeset: changeset)
   end
 
   def login(conn, %{:email => email, :password => password}) do
@@ -18,12 +21,17 @@ defmodule EPharmWeb.AuthController do
       end
   end
 
-  def signup(conn, params) do
-    creds = %{:email => email, :password => password, :firstName => f_name, :lastName => l_name} = params
-    if(byte_size(email) > 0 and byte_size(password) > 0) do
-      render(conn, :welcome, creds)
-    else
-      render(conn, :auth)
+  def signup(conn, %{"user" => user_params}) do
+    case Accounts.create_user(user_params) do
+      {:ok, user} ->
+        conn
+        |> put_flash(:info, "Success!!")
+        |> redirect(to: "/account")
+
+     {:error, %Ecto.Changeset{} = changeset} ->
+       conn
+       |> put_flash(:error, "Failed: Invalid credentials")
+       |> redirect(to: "/auth/signup", changeset: changeset)
     end
   end
 end

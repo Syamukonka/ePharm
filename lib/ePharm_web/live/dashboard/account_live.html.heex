@@ -1,0 +1,23 @@
+<.flash_group flash={@flash} />
+<section class="px-2 sm:px-3, md:px-5">
+
+    Welcome to your account
+
+     <%= color = case @viewing_mode do
+            0 -> "bg-gray-100"
+            1 -> "bg-green-200"
+            2 -> "bg-amber-400"
+         end %>
+    <div class={" flex flex-col justify-center items-center mt-5 p-8 text-2xl #{color} rounded-lg "} >
+        <%= @viewing_mode %>
+        <%= color %>
+        <div class="flex justify-between gap-5">
+            <button phx-click="left">
+                Left
+            </button>
+            <button phx-click="right">
+                Right
+            </button>
+        </div>
+    </div>
+</section>

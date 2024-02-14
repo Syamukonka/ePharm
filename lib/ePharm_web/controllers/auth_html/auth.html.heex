@@ -6,35 +6,38 @@
     <div class="max-w-screen-lg m-auto overflow-hidden rounded-lg grid grid-cols-1 md:grid-cols-2 mt-5 border">
         <div class="p-3 md:p-5">
             <%= if @mode === "Sign up" do%>
-                <form action="#" class="flex flex-col gap-3">
+                <.simple_form :let={f} for={@changeset} action={~p"/auth/signup"} class="flex flex-col gap-3">
+
                     <div class="flex flex-col md:flex-row gap-3">
                         <label for="fName"> <span class="text-sm"> First name </span>
-                            <input id="fName" name="firstName" placeholder="e.g John" class="w-full mt-2"/>
+                            <.input id="fName" field={f[:first_name]} placeholder="e.g John" class="w-full mt-2" />
                         </label>
 
                         <label for="lName"> <span class="text-sm"> Last name </span>
-                            <input id="lName" name="lastName" placeholder="e.g Banda" class="w-full mt-2"/>
+                            <.input id="lName" field={f[:last_name]} placeholder="e.g Banda" class="w-full mt-2"/>
                         </label>
                     </div>
 
                     <label for="email"> <span class="text-sm"> Email </span>
-                        <input id="email" type="email" name="email" placeholder="john@example.com" class="w-full mt-2"/>
+                        <.input id="email" type="email" field={f[:email]} placeholder="john@example.com" class="w-full mt-2"/>
                     </label>
 
                     <label for="password"> <span class="text-sm"> Password </span>
-                        <input id="password" type="password" name="password" placeholder="Password" class="w-full mt-2"/>
+                        <.input id="password" type="password" field={f[:password]} placeholder="Password" class="w-full mt-2"/>
                     </label>
 
                     <label for="re-password"> <span class="text-sm"> Confirm Password </span>
-                        <input id="re-password" type="password" name="re_password" placeholder="Re-enter password" class="w-full mt-2"/>
+                        <input id="re-password" type="password" name={"re_password"} placeholder="Re-enter password" class="w-full mt-2"/>
                     </label>
 
-                    <button type="submit" class="text-white font-medium bg-gradient-to-r from-orange-500 to-orange-400 px-3 py-2 mt-2 font-bold rounded" >
-                        Sign up
-                    </button>
-                </form>
+                    <:actions>
+                        <.icon_button class="text-white font-medium bg-gradient-to-r from-orange-500 to-orange-400 px-3 py-2 mt-2 font-bold rounded">
+                            Create
+                        </.icon_button>
+                    </:actions>
+                </.simple_form>
             <% else %>
-                <form action="#" class="flex flex-col gap-3">
+                <form action="/auth/login" method="post" class="flex flex-col gap-3">
                     <label for="email"> <span class="text-sm"> Email </span>
                         <input id="email" type="email" name="email" placeholder="john@example.com" class="w-full mt-2"/>
                     </label>

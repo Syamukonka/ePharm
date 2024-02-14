@@ -1,0 +1,46 @@
+<div  class="!bg-red-400">
+    <.header>
+      My Doctors
+      <:actions>
+        <div class="flex items-center justify-between gap-4">
+            <.icon name="user-portrait" class="w-5 h-5" box_style="border rounded-full p-2" />
+            <.icon name="table-list-solid" class="w-5 h-5"  box_style="border rounded-full p-2"/>
+            <.link href={~p"/doctors/new"}>
+              <.icon_button icon_start={"doctor"} >New Doctor</.icon_button>
+            </.link>
+        </div>
+      </:actions>
+    </.header>
+
+    <% viewing_mode = 1 %>
+
+    <div class="w-full grid sm:grid-cols-3 md:grid-cols-4 gap-4 mt-5">
+        <.doctor_card :for={doc <- @doctors}
+            name={doc.first_name <> " " <> doc.last_name}
+            specialization={doc.specialization}
+            bio={doc.bio}
+            rating={doc.rating}
+            />
+    </div>
+
+    <.table :if={viewing_mode === 1} id="doctors" rows={@doctors} row_click={&JS.navigate(~p"/doctors/#{&1}")}>
+      <:col :let={doctor} label="Name"><%= doctor.first_name <> " " <> doctor.last_name %></:col>
+      <:col :let={doctor} label="Specialization"><%= doctor.specialization %></:col>
+      <:col :let={doctor} label="Deptartment"><%= doctor.deptartment %></:col>
+      <:col :let={doctor} label="Rating"><%= doctor.rating %></:col>
+      <:col :let={doctor} label="Bio"><%= doctor.bio %></:col>
+      <:action :let={doctor}>
+        <div class="sr-only">
+          <.link navigate={~p"/doctors/#{doctor}"}>show</.link>
+        </div>
+        <.link navigate={~p"/doctors/#{doctor}/edit"}>
+        <.icon name="pencil" />
+        </.link>
+      </:action>
+      <:action :let={doctor}>
+        <.link href={~p"/doctors/#{doctor}"} method="delete" data-confirm="Are you sure?">
+          <.icon name="trash-can" />
+        </.link>
+      </:action>
+    </.table>
+</div>

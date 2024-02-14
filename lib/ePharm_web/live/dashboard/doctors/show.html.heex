@@ -1,0 +1,20 @@
+<.header>
+  Doctor <%= @doctor.id %>
+  <:subtitle>This is a doctor record from your database.</:subtitle>
+  <:actions>
+    <.link href={~p"/doctors/#{@doctor}/edit"}>
+      <.button>Edit doctor</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="First name"><%= @doctor.first_name %></:item>
+  <:item title="Last name"><%= @doctor.last_name %></:item>
+  <:item title="Specialization"><%= @doctor.specialization %></:item>
+  <:item title="Deptartment"><%= @doctor.deptartment %></:item>
+  <:item title="Rating"><%= @doctor.rating %></:item>
+  <:item title="Bio"><%= @doctor.bio %></:item>
+</.list>
+
+<.back navigate={~p"/doctors"}>Back to doctors</.back>
